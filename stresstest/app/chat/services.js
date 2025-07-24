@@ -26,7 +26,7 @@ const createChat = async (page, chatName) => {
 
 
 const talkChat = async (page, text) => {
-  const messageInput = page.getByPlaceholder('메시지를 입력하세요... (@를 입력하여 멘션,');
+  const messageInput = page.getByPlaceholder('메시지를 입력하세요... (@를 입력하여 멘션, Shift + Enter로 줄바꿈)');
   const sendButton = page.getByRole('button', { name: '메시지 보내기' });
 
   for (let i = 0; i < 3; i++) {
