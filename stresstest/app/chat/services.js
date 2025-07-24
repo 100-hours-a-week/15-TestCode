@@ -105,19 +105,35 @@ const addReactions = async (page, findText, reaction) => {
   };
   
 
+// const uploadFile = async (page, filename) => {
+//   const [fileChooser] = await Promise.all([
+//       page.waitForEvent('filechooser'),
+//       page.click('//*[@id="__next"]/div/main/div/article/footer/div/div/div[3]/div/button[2]'),
+//   ]);
+
+//   await fileChooser.setFiles(path.resolve(filename));
+
+//   await page.click('//*[@id="__next"]/div/main/div/article/footer/div/div/div[4]/button');
+
+//   console.info('File uploaded');
+//   await page.waitForTimeout(3000);
+// };
+
 const uploadFile = async (page, filename) => {
+  // 1. 파일 선택기 열기
   const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.click('//*[@id="__next"]/div/main/div/article/footer/div/div/div[3]/div/button[2]'),
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: '파일 업로드' }).click(), // ← 적절한 aria-label 또는 title 값 사용
   ]);
 
+  // 2. 파일 경로 설정
   await fileChooser.setFiles(path.resolve(filename));
 
-  await page.click('//*[@id="__next"]/div/main/div/article/footer/div/div/div[4]/button');
+  // 3. 업로드 완료 버튼 클릭 (예: "보내기")
+  await page.getByRole('button', { name: '메세지 보내기' }).click();
 
-  console.info('File uploaded');
+  console.info('✅ File uploaded successfully');
   await page.waitForTimeout(3000);
 };
-
 
 module.exports = { accessChat, createChat, talkChat, addReactions, scrollDown, uploadFile };
