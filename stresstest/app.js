@@ -9,8 +9,8 @@ const passwd = "123123";
 const domain = "@test.com";
 const chatName = "asdfasdf";
 // TODO: 우리 사이트로 바꾸기
-// const site = "http://localhost:3000";
-const site = "http://localhost:3000";
+// const site = "https://chat.goorm-ktb-015.goorm.team";
+const site = "https://chat.goorm-ktb-015.goorm.team";
 
 const filename = './photo/test.jpeg';
 const aiMention = "@wayneAI";
@@ -20,7 +20,7 @@ const group = "group_b";
 
 
 async function registerUser(page) {
-  const id = `${group}_${Date.now()}`
+  const id = `${group}_${Date.now()}` // 임의의값
   const email = id + domain;
 
   try {
@@ -29,7 +29,7 @@ async function registerUser(page) {
     console.error('Error during page navigation:', e);
   } 
   await addUser(page, id, passwd, email);
-  return { email };
+  return { id, email };
 };
 
 async function loginUser(page) {
@@ -46,9 +46,10 @@ async function loginUser(page) {
 }
 
 async function createNewChat(page) {
-  await registerUser(page);
-  await createChat(page, `${group}_${Date.now()}`);
+  const { id } = await registerUser(page);
+  await createChat(page, id);
 };
+
 
 async function scrollChat(page) {
   await registerUser(page);
@@ -56,9 +57,13 @@ async function scrollChat(page) {
 };
 
 async function sendMessageToChat(page) {
-  await registerUser(page);
-  await accessChat(page, chatName);
+  try {
+    const { id } = await registerUser(page);
+    await accessChat(page, chatName);
   await talkChat(page, msg);
+  } catch (err) {
+    console.error('sendMessageToChat 에러 발생:', err);
+  } 
 };
 
 async function reactionToMessage(page) {
