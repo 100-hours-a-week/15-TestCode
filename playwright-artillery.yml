@@ -1,9 +1,10 @@
 config:
-  target: http://goorm-ktb-002.goorm.team/
+  target: http://localhost:3000
+  # target: http://localhost:3000
 
   phases:
-  - duration: 100
-    arrivalRate: 3
+  - duration: 10
+    arrivalRate: 15
 
   engines:
     playwright:
@@ -14,4 +15,4 @@ config:
 
 scenarios:
   - engine: playwright
-    flowFunction: "loginUser" 
+    flowFunction: "registerUser" 

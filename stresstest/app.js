@@ -8,7 +8,10 @@ const crypto = require('crypto');
 const passwd = "123123";
 const domain = "@test.com";
 const chatName = "asdfasdf";
-const site = "http://goorm-ktb-002.goorm.team/";
+// TODO: 우리 사이트로 바꾸기
+// const site = "http://localhost:3000";
+const site = "http://localhost:3000";
+
 const filename = './photo/test.jpeg';
 const aiMention = "@wayneAI";
 const findText = "hello";
