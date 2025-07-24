@@ -18,6 +18,7 @@ const findText = "hello";
 const msg = "hello";
 const group = "group_b";
 
+
 async function registerUser(page) {
   const id = `${group}_${Date.now()}`
   const email = id + domain;
@@ -26,15 +27,23 @@ async function registerUser(page) {
     await page.goto(site);
   } catch (e) {
     console.error('Error during page navigation:', e);
-    await browser.close();
-  }
-
+  } 
   await addUser(page, id, passwd, email);
+  return { email };
 };
 
 async function loginUser(page) {
-  await registerUser(page);
-};
+  try {
+    // 회원가입 수행 후 로그인에 사용할 계정 정보 받기
+    const { email } = await registerUser(page);
+
+    // 로그인 페이지로 이동
+    await page.goto(site);
+    await login(page, email, passwd);
+  } catch (err) {
+    console.error('LoginUser 에러 발생:', err);
+  } 
+}
 
 async function createNewChat(page) {
   await registerUser(page);
