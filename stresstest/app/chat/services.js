@@ -73,35 +73,83 @@ const addReactions = async (page, findText, reaction) => {
       );
   };
   
+  // const scrollDown = async (page) => {
+  //   const tableHeader = page.locator('#table-wrapper table thead tr');
+  //   const boundingBox = await tableHeader.boundingBox();
+  //   if (!boundingBox) {
+  //     console.info('Bounding box not found for the element.');
+  //     return;
+  //   }
+  
+  //   await page.mouse.move(
+  //     boundingBox.x + boundingBox.width / 2,
+  //     boundingBox.y + boundingBox.height / 2
+  //   );
+  
+  //   console.info('Scroll started');
+  //   let stopScrolling = false;
+  
+  //   setTimeout(() => {
+  //     console.info('Scroll stopped after 5 seconds.');
+  //     stopScrolling = true;
+  //   }, 10000);
+  
+  //   try {
+  //     while (!stopScrolling) {
+  //       await page.mouse.wheel(0, 100);
+  //       await page.waitForTimeout(500);
+  //     }
+  //   } finally {
+  //     console.info('Scroll ended');
+  //   }
+  // };
+
   const scrollDown = async (page) => {
-    const tableHeader = page.locator('#table-wrapper table thead tr');
-    const boundingBox = await tableHeader.boundingBox();
-    if (!boundingBox) {
-      console.info('Bounding box not found for the element.');
-      return;
-    }
-  
-    await page.mouse.move(
-      boundingBox.x + boundingBox.width / 2,
-      boundingBox.y + boundingBox.height / 2
-    );
-  
+    const scrollContainer = page.locator('.chat-rooms-table');
+    await scrollContainer.waitFor({ state: 'visible' });
+    
     console.info('Scroll started');
-    let stopScrolling = false;
-  
-    setTimeout(() => {
-      console.info('Scroll stopped after 5 seconds.');
-      stopScrolling = true;
-    }, 10000);
-  
-    try {
-      while (!stopScrolling) {
-        await page.mouse.wheel(0, 100);
-        await page.waitForTimeout(500);
+    
+    const scrollPromise = new Promise(async (resolve) => {
+      let previousScrollTop = -1;
+      
+      while (true) {
+        const endMessage = await page.locator('text=모든 채팅방을 불러왔습니다.').isVisible().catch(() => false);
+        if (endMessage) {
+          console.info('All rooms loaded!');
+          resolve();
+          break;
+        }
+        
+        await scrollContainer.evaluate(el => {
+          el.scrollTop = el.scrollHeight;
+        });
+        await page.waitForTimeout(1000);
+        
+        // 새로운 스크롤 위치 확인
+        const newScrollTop = await scrollContainer.evaluate(el => el.scrollTop);
+        
+        // 스크롤이 변하지 않았으면 채팅방 목록 헤더 클릭
+        if (newScrollTop === previousScrollTop) {
+          await page.getByRole('button', { name: '채팅방 목록' }).click();
+          await page.waitForTimeout(500);
+        }
+        
+        previousScrollTop = newScrollTop;
       }
-    } finally {
-      console.info('Scroll ended');
-    }
+    });
+  
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => {
+        console.info('Scroll timeout after 15 seconds');
+        resolve();
+      }, 15000);
+    });
+  
+    // 15초 또는 스크롤 완료 중 먼저 끝나는 것을 기다림
+    await Promise.race([scrollPromise, timeoutPromise]);
+    
+    console.info('Scroll ended');
   };
   
 
@@ -123,7 +171,7 @@ const uploadFile = async (page, filename) => {
   // 1. 파일 선택기 열기
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: '파일 업로드' }).click(), // ← 적절한 aria-label 또는 title 값 사용
+    page.getByRole('button', { name: '파일 첨부' }).click(), // ← 적절한 aria-label 또는 title 값 사용
   ]);
 
   // 2. 파일 경로 설정

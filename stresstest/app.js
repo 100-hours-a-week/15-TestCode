@@ -73,7 +73,7 @@ async function reactionToMessage(page) {
 };
 
 async function uploadFileToChat(page) {
-  await registerUser(page);
+  await loginUser(page);
   await accessChat(page, chatName);
   await uploadFile(page, filename);
 };
